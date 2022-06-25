@@ -1,7 +1,7 @@
+import datetime
 import logging
 import os
 import zlib
-import datetime
 from logging.handlers import RotatingFileHandler
 
 reset = "\x1b[0m"
@@ -50,7 +50,7 @@ def paint_level(level: int, text: str) -> str:
 
 def paint_name(text: str) -> str:
     color = (
-            "\u001b[38;5;" + str(COLORS[zlib.adler32(text.encode()) % len(COLORS)]) + "m"
+        "\u001b[38;5;" + str(COLORS[zlib.adler32(text.encode()) % len(COLORS)]) + "m"
     )
     return f"{color}{text}{reset}"
 
@@ -60,7 +60,10 @@ class LoggerFormatter(logging.Formatter):
     level_just = 40
 
     def __init__(
-            self, splitter: str, show_func: bool = False, emphasize_from: int = logging.ERROR
+        self,
+        splitter: str,
+        show_func: bool = False,
+        emphasize_from: int = logging.ERROR,
     ):
         """
         Args:
@@ -80,13 +83,13 @@ class LoggerFormatter(logging.Formatter):
         time = self.formatTime(record, self.datefmt)
         split_3 = self.splitter * 3
         log_text = (
-                f"{split_3}[{time}]{split_3}[{record.levelname}]".ljust(
-                    self.level_just, self.splitter
-                )
-                + f"{split_3}[{record.name}]{split_3}".ljust(self.name_just, self.splitter)
-                + f" {record.getMessage()} :: ({record.filename}:"
-                + (f"{record.lineno}", record.funcName)[self.show_func]
-                + ")"
+            f"{split_3}[{time}]{split_3}[{record.levelname}]".ljust(
+                self.level_just, self.splitter
+            )
+            + f"{split_3}[{record.name}]{split_3}".ljust(self.name_just, self.splitter)
+            + f" {record.getMessage()} :: ({record.filename}:"
+            + (f"{record.lineno}", record.funcName)[self.show_func]
+            + ")"
         )
         if record.levelno >= self.emphasize_from:
             return paint_level(record.levelno, log_text)
@@ -96,11 +99,11 @@ class LoggerFormatter(logging.Formatter):
 
 
 def get_logger(
-        name: str,
-        level: int = logging.NOTSET,
-        split: str = "=",
-        show_func: bool = False,
-        emphasize_from: int = logging.ERROR,
+    name: str,
+    level: int = logging.NOTSET,
+    split: str = "=",
+    show_func: bool = False,
+    emphasize_from: int = logging.ERROR,
 ) -> logging.Logger:
     lev_tmp = os.getenv("GAY_LEVEL")
     if level is logging.NOTSET:
@@ -114,8 +117,8 @@ def get_logger(
     logger.addHandler(stdout_h)
 
     os.makedirs(LOG_FOLDER, exist_ok=True)
-    logger.addHandler(RotatingFileHandler(
-        LOG_FILE, maxBytes=50 * 1024 * 1024, backupCount=5
-    ))
+    logger.addHandler(
+        RotatingFileHandler(LOG_FILE, maxBytes=50 * 1024 * 1024, backupCount=5)
+    )
 
     return logger

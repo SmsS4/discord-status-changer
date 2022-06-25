@@ -1,7 +1,8 @@
 import datetime
 import time
 import traceback
-from typing import Optional, Tuple
+from typing import Optional
+from typing import Tuple
 
 import psutil
 import requests
@@ -9,7 +10,7 @@ import requests
 from discord_status_changer import config
 from discord_status_changer.logger import get_logger
 
-logger = get_logger('status', split=' ')
+logger = get_logger("status", split=" ")
 
 
 def get_process_quote() -> Optional[str]:
@@ -47,13 +48,7 @@ def get_quote() -> dict:
     else:
         text = q[0]
         emoji = q[1]
-    return {
-        "custom_status":
-            {
-                "text": text,
-                "emoji_name": emoji
-            }
-    }
+    return {"custom_status": {"text": text, "emoji_name": emoji}}
 
 
 def main():
@@ -63,9 +58,11 @@ def main():
     while error_cnt < config.MAX_ERROR:
         payload = get_quote()
         if str(last_payload) != str(payload):
-            logger.info('New payload %s', payload)
+            logger.info("New payload %s", payload)
             try:
-                response = requests.request("PATCH", config.URL, json=payload, headers=config.HEADERS)
+                response = requests.request(
+                    "PATCH", config.URL, json=payload, headers=config.HEADERS
+                )
                 last_payload = payload
                 logger.info("Status code %d", response.status_code)
             except ConnectionError as e:
@@ -73,12 +70,14 @@ def main():
                 time.sleep(60)
             except Exception as e:
                 error_cnt += 1
-                logger.error("Failed to change status %s\n%s", e, traceback.format_exc())
+                logger.error(
+                    "Failed to change status %s\n%s", e, traceback.format_exc()
+                )
                 time.sleep(60)
         time.sleep(60)
 
     logger.error("MAX_ERROR exceeded")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
